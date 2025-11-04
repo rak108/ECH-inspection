@@ -44,7 +44,7 @@ sk = skr.to_private_bytes()
 
 def replace_key(data):
     # sk,pk = get_keypair()
-    print(type(pk))
+    # print(type(pk))
     ## FIX
     # sk_pem = (b"-----BEGIN PRIVATE KEY-----\n" + base64.encodebytes(sk) + b"-----END PRIVATE KEY-----\n")
 
@@ -58,6 +58,7 @@ def replace_key(data):
     offset+=2
     # Version (2 bytes)
     if len(data) < offset + 2:
+        print(data)
         return result
     version = struct.unpack('>H', data[offset:offset+2])[0]
     
@@ -272,26 +273,27 @@ def print_echconfig(parsed):
             print(f"{key.replace('_', ' ').title()}: {value}")
     
     print("=" * 60)
-print("Enter ECHConfig in base64 (press Enter when done):")
-b64_input = input().strip()
+# print("Enter ECHConfig in base64 (press Enter when done):")
+# b64_input = input().strip()
+b64_input = sys.argv[1].strip()
 echconfig_bytes = base64.b64decode(b64_input)
 
-print(f"Raw hex: {echconfig_bytes.hex()}\n")
+# print(f"Raw hex: {echconfig_bytes.hex()}\n")
 
 parsed = parse_echconfig(echconfig_bytes)
         
 # Print results
-print_echconfig(parsed)
+# print_echconfig(parsed)
         
-print("################################NEW KEY ################################")
+# print("################################NEW KEY ################################")
 
 new_conf = replace_key(echconfig_bytes)
 
 new_parsed = parse_echconfig(new_conf)
 
-print_echconfig(new_parsed)
+# print_echconfig(new_parsed)
 
 
 
 config_64 = base64.b64encode(new_conf)
-print(config_64)
+print(config_64.decode())

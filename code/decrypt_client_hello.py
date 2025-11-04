@@ -82,7 +82,7 @@ def parse_ech_from_pcap(pcap_file):
 
 # print_payload(aad)
 
-pcap_file = "./pcaps/mada_test_client_hello_second.pcap"
+pcap_file = "./pcaps/mada_test_client_hello_third.pcap"
 cap = pyshark.FileCapture(pcap_file, display_filter="tls.handshake.type == 1",  use_json=True,include_raw=True)  # ClientHello
 pkt = cap[0]
 
@@ -93,6 +93,11 @@ offset = 81 #--> 0303
 # enc_offset = 1696
 # payload_offset = 1730
 
+payload_len = 175
+enc_offset = 0x1cf
+payload_offset = 0x1f1
+
+## Third client_hello in pcap #######
 payload_len = 175
 enc_offset = 0x1cf
 payload_offset = 0x1f1
