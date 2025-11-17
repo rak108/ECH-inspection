@@ -1,0 +1,4 @@
+echconfig,versions,cipher_suites,public_names,domain_count,example_domains
+AEX+DQBB4wAgACD7KKwLvxAZeNRfn+RMifhub9VaY63BJtppgT0W7fcDFwAEAAEAAQASY2xvdWRmbGFyZS1lY2guY29tAAA=,0xfe0d,HKDF-SHA256 + AES-128-GCM,cloudflare-ech.com,340,"crichdstreaming.com, hianimes.ro, www.pornoxo.com, www.rudebaguette.com, moviesvn.net"
+AEX+DQBBvAAgACDJd/EabPEcMfKX0Em/UGfcQXgccEu/rvvGoJj3dCJzBAAEAAEAAQASY2xvdWRmbGFyZS1lY2guY29tAAA=,0xfe0d,HKDF-SHA256 + AES-128-GCM,cloudflare-ech.com,57,"all4pdfs.com, hdtoday.gg, mangafire.to, www.dwelloop.net, www.xxhentai.xyz"
+,,,,12,"www.wcoanimedub.tv, searchforbestoptions.com, videos-hub.com, xxx-videos-hub.com, voteslp.lc"

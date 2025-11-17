@@ -1,0 +1,4 @@
+echconfig,versions,cipher_suites,public_names,domain_count,example_domains
+AEX+DQBBnwAgACCOXvM+jFMapu9uxkvoFIdwTiAdhrrwSiI2AIxpOxtDXwAEAAEAAQASY2xvdWRmbGFyZS1lY2guY29tAAA=,0xfe0d,HKDF-SHA256 + AES-128-GCM,cloudflare-ech.com,2228,"www.zone-telechargement.diy, www.gratuit.xxx, coflix.pro, fs-miroir6.lol, www.curseforge.com"
+AEX+DQBBvAAgACDJd/EabPEcMfKX0Em/UGfcQXgccEu/rvvGoJj3dCJzBAAEAAEAAQASY2xvdWRmbGFyZS1lY2guY29tAAA=,0xfe0d,HKDF-SHA256 + AES-128-GCM,cloudflare-ech.com,473,"www.rascol.com, www.ptitchef.com, scan-hentai.net, ecoledelavie-pierrelatte.fr, www.jai-trouve.com"
+,,,,54,"oneupload.net, www.quizz.biz, pornomanoir.com, crunchyscan.fr, filmoflix.vc"
