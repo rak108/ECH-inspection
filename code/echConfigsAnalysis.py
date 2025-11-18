@@ -4,11 +4,8 @@ import struct
 import os
 from collections import defaultdict, OrderedDict
 
-# INPUT_FILE = "../dataset/configs.csv"             # domain,echconfig
-# OUTPUT_FILE = "../dataset/ech_config_analysis.csv"    # echconfig, versions, cipher_suites, public_names, domain_count, example_domains
-
-INPUT_DIR = "../dataset/country_wise_ech"
-OUTPUT_DIR = "../output/country_wise_ech_analysis"
+INPUT_DIR = "../dataset/diff_dns_curl"
+OUTPUT_DIR = "../output/diff_dns_curl_analysis"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def _b64fix(s: str) -> str:
@@ -17,32 +14,20 @@ def _b64fix(s: str) -> str:
     return s + ("=" * pad)
 
 def _read_u8(b, i):
-    if i + 1 > len(b): raise ValueError("u8 out of range")
     return b[i], i + 1
 
 def _read_u16(b, i):
-    if i + 2 > len(b): raise ValueError("u16 out of range")
     return struct.unpack_from("!H", b, i)[0], i + 2
 
 def _read_bytes(b, i, n):
-    if i + n > len(b): raise ValueError("bytes out of range")
     return b[i:i+n], i + n
 
 def parse_echconfig_list_or_single(b64blob: str):
-    """
-    Returns a list of parsed ECHConfig entries (could be 1+) from either:
-      - ECHConfigList (uint16 len + [ECHConfig...])
-      - bare ECHConfig (no list length)
-    Each entry is a dict with: version, kem_id, public_name, cipher_suites (list of "kdf-aead" hex strings)
-    """
     out = []
 
     raw = base64.b64decode(_b64fix(b64blob), validate=False)
 
     def parse_one_config(buf, pos):
-        # ECHConfig:
-        #   uint16 version
-        #   opaque contents<1..2^16-1>
         version, pos = _read_u16(buf, pos)
         cont_len, pos = _read_u16(buf, pos)
         contents, pos = _read_bytes(buf, pos, cont_len)
@@ -79,7 +64,6 @@ def parse_echconfig_list_or_single(b64blob: str):
             ("0002", "0002"): "HKDF-SHA384 + AES-256-GCM",
         }
 
-        # --- inside your cipher suite loop ---
         for j in range(0, len(cs_buf), 4):
             if j + 4 <= len(cs_buf):
                 kdf, aead = struct.unpack_from("!HH", cs_buf, j)
@@ -88,10 +72,8 @@ def parse_echconfig_list_or_single(b64blob: str):
                     CIPHER_SUITE_MAP.get((kdf_hex, aead_hex), f"{kdf_hex}-{aead_hex}")
                 )
 
-        # maximum_name_length
         _, c = _read_u8(contents, c)
 
-        # public_name
         pn_len, c = _read_u8(contents, c)
         public_name_b, c = _read_bytes(contents, c, pn_len)
         try:
@@ -99,11 +81,9 @@ def parse_echconfig_list_or_single(b64blob: str):
         except UnicodeError:
             public_name = public_name_b.decode("utf-8", errors="ignore")
 
-        # extensions (skip)
-        if c + 2 <= len(contents):
-            ext_len, c = _read_u16(contents, c)
-            # ignore body safely if present
-            _ = contents[c:c+ext_len]
+        # if c + 2 <= len(contents):
+        #     ext_len, c = _read_u16(contents, c)
+        #     _ = contents[c:c+ext_len]
 
         return {
             "version": f"0x{version:04x}",
@@ -112,9 +92,6 @@ def parse_echconfig_list_or_single(b64blob: str):
             "public_name": public_name
         }, pos
 
-    # Heuristic: detect list vs single
-    # ECHConfigList starts with uint16 total_length; then first two bytes AFTER that should be version (0xfe0d today).
-    # If raw[0:2] looks like a plausible total_length and raw[2:4] == version, treat as list.
     is_list = False
     if len(raw) >= 6:
         total_len = struct.unpack_from("!H", raw, 0)[0]
@@ -144,8 +121,7 @@ def parse_echconfig_list_or_single(b64blob: str):
     return out
 
 def analyze_csv(infile, outfile):
-    # 1) Read input CSV and group by echconfig (string-equal)
-    groups = defaultdict(list)  # ech_b64 -> [domain,...]
+    groups = defaultdict(list)
     with open(infile, newline="") as f:
         r = csv.DictReader(f)
         for row in r:
@@ -155,7 +131,6 @@ def analyze_csv(infile, outfile):
 
     print(f"Unique ECH config blobs: {len(groups)}")
 
-    # 2) For each unique echconfig, parse and merge fields across all configs in the list
     rows_out = []
     for ech_b64, domains in groups.items():
         parsed_list = parse_echconfig_list_or_single(ech_b64)
@@ -186,7 +161,7 @@ def analyze_csv(infile, outfile):
             "example_domains": example
         })
 
-    # 3) Write summary CSV
+
     with open(outfile, "w", newline="") as f:
         fieldnames = ["echconfig", "versions", "cipher_suites", "public_names", "domain_count", "example_domains"]
         w = csv.DictWriter(f, fieldnames=fieldnames)
